@@ -1,0 +1,18 @@
+#!/bin/sh
+
+ERNOE_ROOT=$(pwd)
+ERNOE_CONDA_ENV=$(basename $ERNOE_ROOT)
+echo $ERNOE_CONDA_ENV
+
+# Create environment if it does not yet exist.
+if ! conda-env list | grep -lq $ERNOE_CONDA_ENV; then
+    echo name: $ERNOE_CONDA_ENV >> $ERNOE_ROOT/python/environment.yml
+    conda-env create -f $ERNOE_ROOT/python/environment.yml
+fi
+
+source activate $ERNOE_CONDA_ENV
+
+# Modify our Python path if our python directory is not on it.
+if ! echo $PYTHONPATH | grep -lq $ERNOE_ROOT'/python:'; then
+    export PYTHONPATH=$ERNOE_ROOT/python:$PYTHONPATH
+fi

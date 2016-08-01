@@ -5,21 +5,12 @@ Package layout:
         __init__.py
         cube/
             internals/
-                eval/
-                    __init__.py
-                    cube3d.py
-                    void3d.py
-                    ...
                 __init__.py
                 cube3d.py
                 cubie3d.py
                 ...
             __init__.py
-            cube2x2.py
-            cube3x3.py
-            cube4x4.py
-            cube5x5.py
-            void3x3.py
+            cube_instances.py
             ...
         display/
             backend/

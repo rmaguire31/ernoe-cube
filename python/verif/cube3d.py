@@ -1,4 +1,4 @@
-"""
+"""This module contains the verification code for the Cube3D base class.
 """
 import re
 import logging
@@ -13,10 +13,16 @@ class InvalidMoveKeyErr(Exception):
     
     
 class InvalidInverseErr(Exception):
+    """Raised when executing (F, F') does not result in an identity
+    operation.
+    """
     pass
 
 
 class SingleMoveGroupErr(Exception):
+    """Raised when executing (F, F, F, F) does not result in an
+    identity operation.
+    """
     pass
 
 
@@ -90,9 +96,9 @@ def verif(ranks=range(2, 10)):
 if __name__ == "__main__":
     logging.addLevelName(logging.INFO,     '>')
     logging.addLevelName(logging.DEBUG,    '?')
-    logging.addLevelName(logging.WARNING,  '*')
-    logging.addLevelName(logging.ERROR,    '!')
-    logging.addLevelName(logging.CRITICAL, '@')
+    logging.addLevelName(logging.WARNING,  '!')
+    logging.addLevelName(logging.ERROR,    '@')
+    logging.addLevelName(logging.CRITICAL, '@@@')
     logging.basicConfig(
             format="[%(asctime)s][%(levelname)s] %(message)s",
             level=logging.INFO,

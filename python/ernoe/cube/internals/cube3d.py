@@ -38,6 +38,16 @@ class Cube3D(object):
         """Initialised state and moveset of cube.
         """
         
+        # Initialise mask for the set of all indices. This will only be
+        # called if the child of this class does not override the
+        # global_mask property.
+        self.__global_mask = set([
+                (x, y, z)
+                for x in range(0, rank)
+                for y in range(0, rank)
+                for z in range(0, rank)
+            ])
+        
         # First build elementary transformation matrices.
         t  = npm.identity(4)
         ti = npm.identity(4)
@@ -47,6 +57,7 @@ class Cube3D(object):
         rx  = (t @ _RX  @ ti).astype(int)
         ry  = (t @ _RY  @ ti).astype(int)
         rz  = (t @ _RZ  @ ti).astype(int)
+        print(rx.I.dtype)
         
         self._move = {}
         self._move_alias = {}
@@ -86,41 +97,95 @@ class Cube3D(object):
                     
             # Construct mask and transform matrix for move.
             if face == 'L':
-                mask = np.mgrid[slice_num:slice_num+1, 0:rank, 0:rank]
-                mask = mask.reshape(3, -1).transpose()
+                # Position mask.
+                mask = self.global_mask | set([
+                        (x, y, z)
+                        for x in range(0, slice_num+1)
+                        for y in range(0, rank)
+                        for z in range(0, rank)
+                    ])
+                
+                # Transformation matrix
                 transform = rx**rot_num
+                
             elif face == 'F':
-                mask = np.mgrid[0:rank, slice_num:slice_num+1, 0:rank]
-                mask = mask.reshape(3, -1).transpose()
+                # Position mask.
+                mask = self.global_mask | set([
+                        (x, y, z)
+                        for x in range(0, rank)
+                        for y in range(0, slice_num+1)
+                        for z in range(0, rank)
+                    ])
+                    
+                # Transformation matrix
                 transform = ry**rot_num
+                
             elif face == 'D':
-                mask = np.mgrid[0:rank, 0:rank, slice_num:slice_num+1]
-                mask = mask.reshape(3, -1).transpose()
+                # Position mask.
+                mask = self.global_mask | set([
+                        (x, y, z)
+                        for x in range(0, rank)
+                        for y in range(0, rank)
+                        for z in range(0, slice_num+1)
+                    ])
+                    
+                # Transformation matrix
                 transform = rz**rot_num
+                
             elif face == 'R':
-                mask = np.mgrid[rank-slice_num-1:rank-slice_num, 0:rank, 0:rank]
-                mask = mask.reshape(3, -1).transpose()
-                transform = rx.I**rot_num
+                # Position mask.
+                mask = self.global_mask | set([
+                        (x, y, z)
+                        for x in range(rank-slice_num-1, rank)
+                        for y in range(0, rank)
+                        for z in range(0, rank)
+                    ])
+                    
+                # Transformation matrix
+                transform = rx.I.astype(int)**rot_num
+                
             elif face == 'B':
-                mask = np.mgrid[0:rank, rank-slice_num-1:rank-slice_num, 0:rank]
-                mask = mask.reshape(3, -1).transpose()
-                transform = ry.I**rot_num
+                # Position mask.
+                mask = self.global_mask | set([
+                        (x, y, z)
+                        for x in range(0, rank)
+                        for y in range(rank-slice_num-1, rank)
+                        for z in range(0, rank)
+                    ])
+                    
+                # Transformation matrix
+                transform = ry.I.astype(int)**rot_num
             elif face == 'U':
-                mask = np.mgrid[0:rank, 0:rank, rank-slice_num-1:rank-slice_num]
-                mask = mask.reshape(3, -1).transpose()
-                transform = rz.I**rot_num
+                mask = self.global_mask | set([
+                        (x, y, z)
+                        for x in range(0, rank)
+                        for y in range(0, rank)
+                        for z in range(rank-slice_num-1, rank)
+                    ])
+                    
+                # Transformation matrix
+                transform = rz.I.astype(int)**rot_num
                 
             # Save move.
             self._move[key] = (mask, transform)
             
         # Initialise cube state.
-        self._all = np.mgrid[0:rank, 0:rank, 0:rank].reshape(3, -1).transpose()
         self._state = np.empty((rank, rank, rank), dtype=Cubie3D)
-        for pos in self._all:
-            self._state[tuple(pos)] = Cubie3D(pos)
+        for pos in self.global_mask:
+            self._state[pos] = Cubie3D(np.array(pos, dtype=int))
             
         # Initialise cache
         self._moves_cache = {}
+        
+    @property
+    def global_mask(self):
+        """Returns global mask for cube.
+        
+        This is intended to be overidden by child of class, as it is
+        inefficient to operate on all cubies in cube when many are
+        hidden.
+        """
+        return self.__global_mask
         
     @property
     def move_keys(self, aliases=False):
@@ -135,7 +200,7 @@ class Cube3D(object):
     def state(self):
         """Returns read only state of cube.
         """
-        return self._state
+        return self._state.copy()
 
     def cache_seq(self, move_keys):
         """Optimises and caches the sequence of moves in move_keys.
@@ -148,33 +213,32 @@ class Cube3D(object):
             return
         
         # Save state and execute move sequence.
-        state = self._state.copy()
+        state = self.state
         self.execute_seq(move_keys)
         
         moves_dict = {}
-        for pos in self._all:
+        for pos in self.global_mask:
                         
             # Find where the cubie has moved to.
-            home = state[tuple(pos)].home
-            for new_pos in self._all:
-                if np.all(self._state[tuple(new_pos)].home == home):
+            home = state[pos].home
+            for new_pos in self.global_mask:
+                if np.all(self.state[new_pos].home == home):
                     break
            
             # Skip identity transformations.
-            if np.all(
-                    self._state[tuple(new_pos)].pose == state[tuple(pos)].pose):
+            if np.all(self.state[new_pos].pose == state[pos].pose):
                 continue
             
             # Find the linear transformation which mapped the pose of
             # the cubie to the new pose.
-            transform = self._state[new_pos].pose @ state[pos].pose.I
+            transform = self.state[new_pos].pose @ state[pos].pose.I
             
             # Check if any other cubies use this transformation.
             if str(transform) in moves_dict.keys():
                 mask, _ = moves_dict[str(transform)]
-                mask = np.concatenate((mask, pos[np.newaxis, :]), axis=0)
+                mask |= pos
             else:
-                mask = pos[np.newaxis, :]
+                mask = set((pos,))
                 
             # Save mask for this transformation.
             moves_dict[str(transform)] = (mask, transform)
@@ -204,16 +268,16 @@ class Cube3D(object):
             
             # This is not a linear transformation, so we need to operate
             # on a temporary copy.
-            state = self._state.copy()
+            state = self.state
             
             for pos in mask:
                 
                 # Transform pose of cubie by rotating about centre of
                 # cube.
-                state[tuple(pos)].reorient(transform)
+                state[pos].reorient(transform)
                 
                 # Extract position vector from pose of cubie and
                 # reposition it in the cube state.
-                new_pos[:] = state[tuple(pos)].pose[0:3, 3].reshape(-1)
-                self._state[tuple(new_pos)] = state[tuple(pos)]
+                new_pos[:] = state[pos].pose[0:3, 3].reshape(-1)
+                self._state[tuple(new_pos)] = state[pos]
             

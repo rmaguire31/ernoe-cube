@@ -6,11 +6,16 @@ Package layout:
         cube/
             internals/
                 __init__.py
-                cube3d.py
-                cubie3d.py
+                cubemxx3.py
+                cubiemxxn.py
                 ...
             __init__.py
-            cube_instances.py
+            cube2xx3.py
+            cube3xx3.py
+            cube4xx3.py
+            cube5xx3.py
+            cube6xx3.py
+            cube7xx3.py
             ...
         display/
             backend/

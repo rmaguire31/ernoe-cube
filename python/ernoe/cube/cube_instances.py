@@ -2,16 +2,16 @@
 as the Rubik's Magic Cube.
 """
 
-from ernoe.cube.internals import Cube3D
+from ernoe.cube.internals import CubeMxx3
 
 
-class Cube2x2x2(Cube3D):
+class Cube2xx3(CubeMxx3):
 
     def __init__(self):
         super().__init__(2)
 
 
-class Cube3x3x3(Cube3D):
+class Cube3xx3(CubeMxx3):
 
     __global_mask = set((
             (0,0,0), (0,0,1), (0,0,2),
@@ -35,7 +35,7 @@ class Cube3x3x3(Cube3D):
         return self.__global_mask
 
 
-class Cube4x4x4(Cube3D):
+class Cube4xx3(CubeMxx3):
 
     __global_mask = set((
             (0,0,0), (0,0,1), (0,0,2), (0,0,3),
@@ -67,7 +67,7 @@ class Cube4x4x4(Cube3D):
         return self.__global_mask
 
 
-class Cube5x5x5(Cube3D):
+class Cube5xx3(CubeMxx3):
 
     __global_mask = set((
             (0,0,0), (0,0,1), (0,0,2), (0,0,3), (0,0,4),
@@ -109,7 +109,7 @@ class Cube5x5x5(Cube3D):
         return self.__global_mask
 
 
-class Cube6x6x6(Cube3D):
+class Cube6xx3(CubeMxx3):
 
     __global_mask = set((
             (0,0,0), (0,0,1), (0,0,2), (0,0,3), (0,0,4), (0,0,5),
@@ -163,7 +163,7 @@ class Cube6x6x6(Cube3D):
         return self.__global_mask
 
 
-class Cube7x7x7(Cube3D):
+class Cube7xx3(CubeMxx3):
 
     __global_mask = set((
             (0,0,0), (0,0,1), (0,0,2), (0,0,3), (0,0,4), (0,0,5), (0,0,6),

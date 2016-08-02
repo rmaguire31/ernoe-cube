@@ -5,7 +5,7 @@ dimensions.
 # Use the matrix namespace.
 import numpy as np
 import numpy.matlib as npm
-from ernoe.cube.internals.cubie3d import Cubie3D
+from ernoe.cube.internals.cubie_m_n import CubieMxxN
 
 # Transformation matrices, centred at [0,0,0]
 _RX = np.matrix(
@@ -30,7 +30,7 @@ _RZ = np.matrix(
         dtype=int
     )
 
-class Cube3D(object):
+class CubeMxx3(object):
     """Base class for the general Rubik's cube, in three dimensions.
     """
 

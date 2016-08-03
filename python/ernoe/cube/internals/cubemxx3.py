@@ -98,7 +98,7 @@ class CubeMxx3(object):
             # Construct mask and transform matrix for move.
             if face == 'L':
                 # Position mask.
-                mask = self.global_mask | set([
+                mask = self.global_mask & set([
                         (x, y, z)
                         for x in range(0, slice_num+1)
                         for y in range(0, rank)
@@ -110,7 +110,7 @@ class CubeMxx3(object):
                 
             elif face == 'F':
                 # Position mask.
-                mask = self.global_mask | set([
+                mask = self.global_mask & set([
                         (x, y, z)
                         for x in range(0, rank)
                         for y in range(0, slice_num+1)
@@ -122,7 +122,7 @@ class CubeMxx3(object):
                 
             elif face == 'D':
                 # Position mask.
-                mask = self.global_mask | set([
+                mask = self.global_mask & set([
                         (x, y, z)
                         for x in range(0, rank)
                         for y in range(0, rank)
@@ -134,7 +134,7 @@ class CubeMxx3(object):
                 
             elif face == 'R':
                 # Position mask.
-                mask = self.global_mask | set([
+                mask = self.global_mask & set([
                         (x, y, z)
                         for x in range(rank-slice_num-1, rank)
                         for y in range(0, rank)
@@ -146,7 +146,7 @@ class CubeMxx3(object):
                 
             elif face == 'B':
                 # Position mask.
-                mask = self.global_mask | set([
+                mask = self.global_mask & set([
                         (x, y, z)
                         for x in range(0, rank)
                         for y in range(rank-slice_num-1, rank)
@@ -156,7 +156,7 @@ class CubeMxx3(object):
                 # Transformation matrix
                 transform = ry.I.astype(int)**rot_num
             elif face == 'U':
-                mask = self.global_mask | set([
+                mask = self.global_mask & set([
                         (x, y, z)
                         for x in range(0, rank)
                         for y in range(0, rank)
@@ -236,7 +236,7 @@ class CubeMxx3(object):
             # Check if any other cubies use this transformation.
             if str(transform) in moves_dict.keys():
                 mask, _ = moves_dict[str(transform)]
-                mask |= pos
+                mask &= pos
             else:
                 mask = set((pos,))
                 

@@ -1,5 +1,5 @@
-"""This module contains the base class for a Rubik's Cube in three
-dimensions.
+"""This module contains the base class for a Rubik's Cube of arbitrary
+rank and dimensions.
 """
 
 # Use the matrix namespace.
@@ -30,7 +30,7 @@ class BaseCube(object):
             R[a,b] = RotationC(n, a, b, c)
             
         # Generate moves.
-        self._move = {}
+        self.__move = {}
         for a, b, w in product(range(n), range(n), range(1, m//2 + 1)):
             self.__move[(a, b, w)] = (
                     R[a,b],
@@ -38,14 +38,26 @@ class BaseCube(object):
                 )
            
     @property
-    def _move(self):
-        """
+    def move(self):
+        """Base property getter for move dictionary.
+        
+        Returns a reference to a base move dictionary, whose keys are
+        tuples of the form `(int(a), int(b), int(w))`.
+        
+        The move is the rotation of slices `[:w] if if w > 0 else [w:]`
+        from axis `a` to axis `b`.
         """
         return self.__move
             
     @property
     def global_mask(self):
-        """
+        """Base property getter for global state masks.
+        
+        All move masks are subsets of the mask returned by this property
+        getter.
+        
+        The base property getter includes all indices in
+        `product([range(m)]*n)`.
         """
         return self.__global_mask
 

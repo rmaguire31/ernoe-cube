@@ -31,11 +31,11 @@ class RotationO(matlib.matrix):
         return super().__new__(cls, R)
         
         
-class Translation(matlib.matrix)
+class Translation(matlib.matrix):
     """Translation(ndarray(c)) -> matrix(T)
     """
 
-    def __new__(cls, c)
+    def __new__(cls, c):
         """
         """
         
@@ -52,7 +52,7 @@ class RotationC(matlib.matrix):
     """RotationC(int(n), int(a), int(b), ndarray(c)) -> matrix(Rc)
     """
     
-    def __new__(cls, a, b, c, dtype=int)
+    def __new__(cls, a, b, c, dtype=int):
         """
         """
         
